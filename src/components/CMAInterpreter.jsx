@@ -1,0 +1,139 @@
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+
+const CMAInterpreter = () => {
+  const [step, setStep] = useState(0);
+  const sequence = [
+    { letter: 'H', meaning: 'initiate_communication', shape: 'spiral' },
+    { letter: 'E', meaning: 'emit_signal', shape: 'burst', context: 'spiral' },
+    { letter: 'L', meaning: 'loop_connection', shape: 'loop', context: 'burst' },
+    { letter: 'L', meaning: 'loop_confirmation', shape: 'loop', context: 'loop' },
+    { letter: 'O', meaning: 'output_intent', shape: 'circle', context: 'loop' },
+    { letter: 'W', meaning: 'bind_world', shape: 'anchors' },
+    { letter: 'O', meaning: 'output_again', shape: 'circle', context: 'anchors' },
+    { letter: 'R', meaning: 'reflect_input', shape: 'mirror', context: 'circle' },
+    { letter: 'L', meaning: 'confirm_loop', shape: 'loop', context: 'mirror' },
+    { letter: 'D', meaning: 'soft_terminate', shape: 'downcurve', context: 'loop' },
+  ];
+
+  const renderShape = (shape) => {
+    switch (shape) {
+      case 'spiral':
+        return (
+          <path
+            d="M50,50 Q75,25 100,50 T150,50"
+            stroke="blue"
+            fill="none"
+            strokeWidth="3"
+          />
+        );
+      case 'burst':
+        return (
+          <circle
+            cx="100"
+            cy="100"
+            r="40"
+            stroke="orange"
+            strokeWidth="3"
+            fill="none"
+          />
+        );
+      case 'loop':
+        return (
+          <path
+            d="M50,100 C75,50 125,150 150,100"
+            stroke="green"
+            fill="none"
+            strokeWidth="3"
+          />
+        );
+      case 'circle':
+        return (
+          <circle
+            cx="100"
+            cy="100"
+            r="50"
+            stroke="purple"
+            strokeWidth="3"
+            fill="none"
+          />
+        );
+      case 'anchors':
+        return (
+          <path
+            d="M50,80 L100,20 L150,80"
+            stroke="teal"
+            fill="none"
+            strokeWidth="3"
+          />
+        );
+      case 'mirror':
+        return (
+          <path
+            d="M50,100 Q100,50 150,100 Q100,150 50,100"
+            stroke="red"
+            fill="none"
+            strokeWidth="3"
+          />
+        );
+      case 'downcurve':
+        return (
+          <path
+            d="M50,50 Q100,150 150,50"
+            stroke="gray"
+            fill="none"
+            strokeWidth="3"
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  const nextStep = () => setStep((prev) => Math.min(prev + 1, sequence.length - 1));
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
+  const current = sequence[step];
+
+  return (
+    <div className="p-4 space-y-4">
+      <Card className="bg-gray-50 shadow-xl rounded-2xl p-4">
+        <CardContent className="space-y-2">
+          <h2 className="text-xl font-semibold">CMA Interpreter</h2>
+          <div className="text-lg">
+            Letter: <strong>{current.letter}</strong>
+          </div>
+          <div className="text-sm text-gray-700">Meaning: {current.meaning}</div>
+          <div className="text-sm text-gray-700">Shape: {current.shape}</div>
+          {current.context && (
+            <div className="text-sm text-gray-700">
+              Contextual deformation from: {current.context}
+            </div>
+          )}
+          <motion.svg
+            key={step}
+            width="200"
+            height="200"
+            viewBox="0 0 200 200"
+            className="mt-4"
+            animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            {renderShape(current.shape)}
+          </motion.svg>
+        </CardContent>
+      </Card>
+      <div className="flex justify-between">
+        <Button onClick={prevStep} disabled={step === 0}>
+          Previous
+        </Button>
+        <Button onClick={nextStep} disabled={step === sequence.length - 1}>
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default CMAInterpreter;
