@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const CMAInterpreter = () => {
   const [step, setStep] = useState(0);
@@ -100,28 +100,37 @@ const CMAInterpreter = () => {
     <div className="p-4 space-y-4">
       <Card className="bg-gray-50 shadow-xl rounded-2xl p-4">
         <CardContent className="space-y-2">
-          <h2 className="text-xl font-semibold">CMA Interpreter</h2>
-          <div className="text-lg">
-            Letter: <strong>{current.letter}</strong>
-          </div>
-          <div className="text-sm text-gray-700">Meaning: {current.meaning}</div>
-          <div className="text-sm text-gray-700">Shape: {current.shape}</div>
-          {current.context && (
-            <div className="text-sm text-gray-700">
-              Contextual deformation from: {current.context}
-            </div>
-          )}
-          <motion.svg
-            key={step}
-            width="200"
-            height="200"
-            viewBox="0 0 200 200"
-            className="mt-4"
-            animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            {renderShape(current.shape)}
-          </motion.svg>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-xl font-semibold">CMA Interpreter</h2>
+              <div className="text-lg">
+                Letter: <strong>{current.letter}</strong>
+              </div>
+              <div className="text-sm text-gray-700">Meaning: {current.meaning}</div>
+              <div className="text-sm text-gray-700">Shape: {current.shape}</div>
+              {current.context && (
+                <div className="text-sm text-gray-700">
+                  Contextual deformation from: {current.context}
+                </div>
+              )}
+              <motion.svg
+                width="200"
+                height="200"
+                viewBox="0 0 200 200"
+                className="mt-4"
+                animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                {renderShape(current.shape)}
+              </motion.svg>
+            </motion.div>
+          </AnimatePresence>
         </CardContent>
       </Card>
       <div className="flex justify-between">
