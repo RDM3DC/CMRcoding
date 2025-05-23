@@ -1,22 +1,42 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
+
+const shapeMap = {
+  H: { meaning: 'initiate_communication', shape: 'spiral' },
+  E: { meaning: 'emit_signal', shape: 'burst', context: 'spiral' },
+  L: { meaning: 'loop_connection', shape: 'loop', context: 'burst' },
+  O: { meaning: 'output_intent', shape: 'circle', context: 'loop' },
+  W: { meaning: 'bind_world', shape: 'anchors' },
+  R: { meaning: 'reflect_input', shape: 'mirror', context: 'circle' },
+  D: { meaning: 'soft_terminate', shape: 'downcurve', context: 'loop' },
+};
 
 const CMAInterpreter = () => {
   const [step, setStep] = useState(0);
-  const sequence = [
-    { letter: 'H', meaning: 'initiate_communication', shape: 'spiral' },
-    { letter: 'E', meaning: 'emit_signal', shape: 'burst', context: 'spiral' },
-    { letter: 'L', meaning: 'loop_connection', shape: 'loop', context: 'burst' },
-    { letter: 'L', meaning: 'loop_confirmation', shape: 'loop', context: 'loop' },
-    { letter: 'O', meaning: 'output_intent', shape: 'circle', context: 'loop' },
-    { letter: 'W', meaning: 'bind_world', shape: 'anchors' },
-    { letter: 'O', meaning: 'output_again', shape: 'circle', context: 'anchors' },
-    { letter: 'R', meaning: 'reflect_input', shape: 'mirror', context: 'circle' },
-    { letter: 'L', meaning: 'confirm_loop', shape: 'loop', context: 'mirror' },
-    { letter: 'D', meaning: 'soft_terminate', shape: 'downcurve', context: 'loop' },
-  ];
+  const [input, setInput] = useState('HELLO WORLD');
+  const [sequence, setSequence] = useState(() => parseSequence('HELLO WORLD'));
+
+  function parseSequence(input) {
+    return input
+      .replace(/\s/g, '')
+      .toUpperCase()
+      .split('')
+      .map((char, index, arr) => {
+        const info = shapeMap[char] || { meaning: 'unknown', shape: 'circle' };
+        const context = index > 0 ? shapeMap[arr[index - 1]]?.shape : null;
+      return { letter: char, ...info, context };
+    });
+  }
+
+  const handleInputChange = (e) => {
+    const newInput = e.target.value;
+    setInput(newInput);
+    setSequence(parseSequence(newInput));
+    setStep(0);
+  };
 
   const renderShape = (shape) => {
     switch (shape) {
@@ -98,6 +118,12 @@ const CMAInterpreter = () => {
 
   return (
     <div className="p-4 space-y-4">
+      <Input
+        value={input}
+        onChange={handleInputChange}
+        placeholder="Type a CMA word..."
+        className="mb-4"
+      />
       <Card className="bg-gray-50 shadow-xl rounded-2xl p-4">
         <CardContent className="space-y-2">
           <h2 className="text-xl font-semibold">CMA Interpreter</h2>
@@ -124,6 +150,9 @@ const CMAInterpreter = () => {
           </motion.svg>
         </CardContent>
       </Card>
+      <div className="text-sm text-gray-600">
+        Context Stack: {sequence.slice(0, step + 1).map((s) => s.shape).join(' → ')}
+      </div>
       <div className="flex justify-between">
         <Button onClick={prevStep} disabled={step === 0}>
           Previous
